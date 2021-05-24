@@ -11,3 +11,5 @@ data
 build
 dist
 *.avi
+.vscode/
+test/

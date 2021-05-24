@@ -1,7 +1,7 @@
 import gym
 import argparse
-#from gym.envs.mujoco import HalfCheetahEnv
-
+from gym.envs.mujoco import HalfCheetahEnv
+from gym.wrappers import FlattenObservation, FilterObservation
 import rlkit.torch.pytorch_util as ptu
 from rlkit.torch.sac.diayn.diayn_env_replay_buffer import DIAYNEnvReplayBuffer
 from rlkit.envs.wrappers import NormalizedBoxEnv
@@ -13,12 +13,13 @@ from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 from rlkit.torch.networks import FlattenMlp
 from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import DIAYNTorchOnlineRLAlgorithm
 
-
+import sys
 def experiment(variant, args):
-    expl_env = NormalizedBoxEnv(gym.make(str(args.env)))
-    eval_env = NormalizedBoxEnv(gym.make(str(args.env)))
-    # expl_env = NormalizedBoxEnv(HalfCheetahEnv())
-    # eval_env = NormalizedBoxEnv(HalfCheetahEnv())
+    expl_env = NormalizedBoxEnv(FlattenObservation(FilterObservation(gym.make("FetchPickAndPlace-v1"), ["observation"])))
+    eval_env = NormalizedBoxEnv(FlattenObservation(FilterObservation(gym.make("FetchPickAndPlace-v1"), ["observation"])))
+
+    # expl_env = NormalizedBoxEnv(gym.make(str(args.env)))
+    # eval_env = NormalizedBoxEnv(gym.make(str(args.env)))
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
     skill_dim = args.skill_dim
@@ -111,10 +112,10 @@ if __name__ == "__main__":
         algorithm_kwargs=dict(
             num_epochs=1000,
             num_eval_steps_per_epoch=5000,
-            num_trains_per_train_loop=1000,
-            num_expl_steps_per_train_loop=1000,
-            min_num_steps_before_training=1000,
-            max_path_length=1000,
+            num_trains_per_train_loop=1001,
+            num_expl_steps_per_train_loop=1001,
+            min_num_steps_before_training=1001,
+            max_path_length=1001,
             batch_size=256,
         ),
         trainer_kwargs=dict(
@@ -127,6 +128,6 @@ if __name__ == "__main__":
             use_automatic_entropy_tuning=True,
         ),
     )
-    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant)
-    # ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
+    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant, snapshot_mode="all")
+    ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
     experiment(variant, args)

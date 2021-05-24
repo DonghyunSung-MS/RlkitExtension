@@ -49,6 +49,10 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicy):
     def skill_reset(self):
         self.skill = random.randint(0, self.skill_dim-1)
 
+    def set_skill(self, skill):
+        assert skill>=0 and skill < self.skil_dim
+        self.skill = skill
+
     def forward(
             self,
             obs,

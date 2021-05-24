@@ -197,13 +197,15 @@ def DIAYNRollout(env, agent, skill, max_path_length=np.inf, render=False):
     next_o = None
     path_length = 0
     if render:
-        img = env.render('rgb_array')
+        env.render()
+        # img = env.render('rgb_array')
 #        env.viewer.cam.fixedcamid = 0
 #        env.viewer.cam.type = 2
-        images.append(img)
+        # images.append(img)
 
     while path_length < max_path_length:
         agent.stochastic_policy.skill = skill
+        # agent.stochastic_policy.skill_reset()
         a, agent_info = agent.get_action(o)
         next_o, r, d, env_info = env.step(a)
         observations.append(o)
@@ -217,8 +219,9 @@ def DIAYNRollout(env, agent, skill, max_path_length=np.inf, render=False):
             break
         o = next_o
         if render:
-            img = env.render('rgb_array')
-            images.append(img)
+            env.render()
+            # img = env.render('rgb_array')
+            # images.append(img)
 
     actions = np.array(actions)
     if len(actions.shape) == 1:

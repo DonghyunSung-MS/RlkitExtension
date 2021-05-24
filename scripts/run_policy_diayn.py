@@ -1,6 +1,8 @@
 from rlkit.samplers.util import DIAYNRollout as rollout
 from rlkit.torch.pytorch_util import set_gpu_mode
 from rlkit.envs.wrappers import NormalizedBoxEnv
+from gym.wrappers import FlattenObservation, FilterObservation
+
 import gym
 import torch
 import argparse
@@ -8,7 +10,7 @@ import argparse
 import uuid
 from rlkit.core import logger
 import numpy as np
-
+import sys 
 filename = str(uuid.uuid4())
 
 
@@ -16,15 +18,17 @@ def simulate_policy(args):
  #   data = joblib.load(args.file)
     data = torch.load(args.file)
     policy = data['evaluation/policy']
-    env = NormalizedBoxEnv(gym.make("BipedalWalkerHardcore-v2"))
+    env = NormalizedBoxEnv(FlattenObservation(FilterObservation(gym.make("FetchPickAndPlace-v1"), ["observation"])))
+    # env.reset()
+    # print(env.step(env.action_space.sample()))
+    # sys.exit()
  #   env = env.wrapped_env.unwrapped
     print("Policy loaded")
     if args.gpu:
         set_gpu_mode(True)
-        policy.cuda()
-
-    import cv2
-    video = cv2.VideoWriter('diayn_bipedal_walker_hardcore.avi', cv2.VideoWriter_fourcc('M','J','P','G'), 30, (1200, 800))
+        # policy.cuda()
+    # import cv2
+    # video = cv2.VideoWriter('diayn_bipedal_walker_hardcore.avi', cv2.VideoWriter_fourcc('M','J','P','G'), 30, (1200, 800))
     index = 0
     for skill in range(policy.stochastic_policy.skill_dim):
         for _ in range(3):
@@ -39,15 +43,15 @@ def simulate_policy(args):
                 env.log_diagnostics([path])
             logger.dump_tabular()
 
-            for i, img in enumerate(path['images']):
-                print(i)
-                print(img.shape)
-                video.write(img[:,:,::-1].astype(np.uint8))
-#                cv2.imwrite("frames/diayn_bipedal_walker_hardcore.avi/%06d.png" % index, img[:,:,::-1])
-                index += 1
+#             for i, img in enumerate(path['images']):
+#                 print(i)
+#                 print(img.shape)
+#                 video.write(img[:,:,::-1].astype(np.uint8))
+# #                cv2.imwrite("frames/diayn_bipedal_walker_hardcore.avi/%06d.png" % index, img[:,:,::-1])
+#                 index += 1
 
-    video.release()
-    print("wrote video")
+    # video.release()
+    # print("wrote video")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
