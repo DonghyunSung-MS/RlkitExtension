@@ -7,6 +7,7 @@ import random
 import sys
 import time
 from collections import namedtuple
+import torch
 
 import __main__ as main
 import dateutil.tz
@@ -343,6 +344,9 @@ def set_seed(seed):
     seed = int(seed)
     random.seed(seed)
     np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 def reset_execution_environment():

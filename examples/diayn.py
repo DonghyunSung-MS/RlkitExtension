@@ -13,10 +13,17 @@ from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 from rlkit.torch.networks import FlattenMlp
 from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import DIAYNTorchOnlineRLAlgorithm
 from rlkit.envs.manipulator2d import Mani2dEnv
+from rlkit.launchers.launcher_util import set_seed
+from multiprocessing import Process
 import sys
+import os
 def experiment(variant, args):
     # expl_env = NormalizedBoxEnv(gym.make(str(args.env)))
     # eval_env = NormalizedBoxEnv(gym.make(str(args.env)))
+    print(os.getpid())
+    ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
+    set_seed(args.seed)
+    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env + str(args.seed), variant=variant, snapshot_mode="last")
 
     expl_env = NormalizedBoxEnv(Mani2dEnv())
     eval_env = NormalizedBoxEnv(Mani2dEnv())
@@ -101,7 +108,7 @@ if __name__ == "__main__":
     parser.add_argument('env', type=str,
                         help='environment')
     parser.add_argument('--skill_dim', type=int, default=10,
-                        help='skill dimension')
+                        help='skill dimension')               
     args = parser.parse_args()
 
     # noinspection PyTypeChecker
@@ -129,6 +136,13 @@ if __name__ == "__main__":
             use_automatic_entropy_tuning=True,
         ),
     )
-    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant, snapshot_mode="last")
-    ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
-    experiment(variant, args)
+
+    procs = []
+    for seed in range(5):
+        args.seed = seed
+        proc = Process(target=experiment, args=(variant, args,))
+        proc.start()
+        procs.append(proc)
+    
+    for proc in procs:
+        proc.join()

@@ -15,11 +15,17 @@ from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import DIAYNTorchOnli
 from rlkit.envs.manipulator2d import Mani2dEnv
 import sys
 from rlkit.util.mi_utils import *
+from rlkit.launchers.launcher_util import set_seed
+
 def experiment(variant, args):
     # expl_env = NormalizedBoxEnv(gym.make(str(args.env)))
     # eval_env = NormalizedBoxEnv(gym.make(str(args.env)))
     expl_env = NormalizedBoxEnv(Mani2dEnv())
     eval_env = NormalizedBoxEnv(Mani2dEnv())
+    
+    setup_logger('DIAYNMUSIC_' + str(args.skill_dim) + '_' + args.env, variant=variant, snapshot_mode="last")
+    ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
+    set_seed(args.seed)
 
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
@@ -109,7 +115,11 @@ if __name__ == "__main__":
                         help='environment')
     parser.add_argument('--skill_dim', type=int, default=10,
                         help='skill dimension')
+    parser.add_argument('--seed', type=int, default=10,
+                        help='seed')                
     args = parser.parse_args()
+
+    set_seed(args.seed)
 
     # noinspection PyTypeChecker
     variant = dict(
@@ -136,6 +146,12 @@ if __name__ == "__main__":
             use_automatic_entropy_tuning=True,
         ),
     )
-    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant, snapshot_mode="last")
-    ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
-    experiment(variant, args)
+    procs = []
+    for seed in range(5):
+        args.seed = seed
+        proc = Process(target=experiment, args=(variant, args,))
+        proc.start()
+        procs.append(proc)
+    
+    for proc in procs:
+        proc.join()
