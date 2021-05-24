@@ -107,8 +107,8 @@ class DIAYNTrainer(TorchTrainer):
         d_pred = self.df(next_obs)
         d_pred_log_softmax = F.log_softmax(d_pred, 1)
         _, pred_z = torch.max(d_pred_log_softmax, dim=1, keepdim=True)
-        rewards = d_pred_log_softmax[torch.arange(d_pred.shape[0]), z_hat] - math.log(1/self.policy.skill_dim)
-        rewards = rewards.reshape(-1, 1)
+        MI_rewards = d_pred_log_softmax[torch.arange(d_pred.shape[0]), z_hat] - math.log(1/self.policy.skill_dim)
+        rewards = MI_rewards.reshape(-1, 1) #+ rewards
         df_loss = self.df_criterion(d_pred, z_hat)
 
         """
@@ -197,7 +197,8 @@ class DIAYNTrainer(TorchTrainer):
             """
             policy_loss = (log_pi - q_new_actions).mean()
 
-            self.eval_statistics['Intrinsic Rewards'] = np.mean(ptu.get_numpy(rewards))
+            self.eval_statistics['Intrinsic Rewards'] = np.mean(ptu.get_numpy(MI_rewards))
+            self.eval_statistics['Sum Rewards'] = np.mean(ptu.get_numpy(rewards))
             self.eval_statistics['DF Loss'] = np.mean(ptu.get_numpy(df_loss))
             self.eval_statistics['DF Accuracy'] = np.mean(ptu.get_numpy(df_accuracy))
             self.eval_statistics['QF1 Loss'] = np.mean(ptu.get_numpy(qf1_loss))

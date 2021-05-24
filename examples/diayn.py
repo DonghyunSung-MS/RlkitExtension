@@ -12,14 +12,15 @@ from rlkit.torch.sac.diayn.policies import SkillTanhGaussianPolicy, MakeDetermin
 from rlkit.torch.sac.diayn.diayn import DIAYNTrainer
 from rlkit.torch.networks import FlattenMlp
 from rlkit.torch.sac.diayn.diayn_torch_online_rl_algorithm import DIAYNTorchOnlineRLAlgorithm
-
+from rlkit.envs.manipulator2d import Mani2dEnv
 import sys
 def experiment(variant, args):
-    expl_env = NormalizedBoxEnv(FlattenObservation(FilterObservation(gym.make("FetchPickAndPlace-v1"), ["observation"])))
-    eval_env = NormalizedBoxEnv(FlattenObservation(FilterObservation(gym.make("FetchPickAndPlace-v1"), ["observation"])))
-
     # expl_env = NormalizedBoxEnv(gym.make(str(args.env)))
     # eval_env = NormalizedBoxEnv(gym.make(str(args.env)))
+
+    expl_env = NormalizedBoxEnv(Mani2dEnv())
+    eval_env = NormalizedBoxEnv(Mani2dEnv())
+
     obs_dim = expl_env.observation_space.low.size
     action_dim = eval_env.action_space.low.size
     skill_dim = args.skill_dim
@@ -110,7 +111,7 @@ if __name__ == "__main__":
         layer_size=256,
         replay_buffer_size=int(1E6),
         algorithm_kwargs=dict(
-            num_epochs=1000,
+            num_epochs=200,
             num_eval_steps_per_epoch=5000,
             num_trains_per_train_loop=1001,
             num_expl_steps_per_train_loop=1001,
@@ -128,6 +129,6 @@ if __name__ == "__main__":
             use_automatic_entropy_tuning=True,
         ),
     )
-    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant, snapshot_mode="all")
+    setup_logger('DIAYN_' + str(args.skill_dim) + '_' + args.env, variant=variant, snapshot_mode="last")
     ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
     experiment(variant, args)
