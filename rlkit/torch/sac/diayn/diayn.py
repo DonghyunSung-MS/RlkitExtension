@@ -161,15 +161,16 @@ class DIAYNTrainer(TorchTrainer):
         self.df_optimizer.step()
 
         self.qf1_optimizer.zero_grad()
-        qf1_loss.backward()
-        self.qf1_optimizer.step()
-
         self.qf2_optimizer.zero_grad()
-        qf2_loss.backward()
-        self.qf2_optimizer.step()
-
         self.policy_optimizer.zero_grad()
+
+        qf1_loss.backward()
+        qf2_loss.backward()
         policy_loss.backward()
+
+
+        self.qf2_optimizer.step()
+        self.qf1_optimizer.step()
         self.policy_optimizer.step()
 
         """

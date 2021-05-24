@@ -17,7 +17,6 @@ def simulate_policy(args):
     data = torch.load(args.file)
     policy = data['evaluation/policy']
     env = NormalizedBoxEnv(gym.make("BipedalWalkerHardcore-v2"))
- #   env = env.wrapped_env.unwrapped
     print("Policy loaded")
     if args.gpu:
         set_gpu_mode(True)
