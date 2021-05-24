@@ -2,6 +2,7 @@ from rlkit.samplers.util import DIAYNRollout as rollout
 from rlkit.torch.pytorch_util import set_gpu_mode
 from rlkit.envs.wrappers import NormalizedBoxEnv
 from gym.wrappers import FlattenObservation, FilterObservation
+from rlkit.envs.manipulator2d import Mani2dEnv
 
 import gym
 import torch
@@ -18,15 +19,11 @@ def simulate_policy(args):
  #   data = joblib.load(args.file)
     data = torch.load(args.file)
     policy = data['evaluation/policy']
-<<<<<<< HEAD
-    env = NormalizedBoxEnv(FlattenObservation(FilterObservation(gym.make("FetchPickAndPlace-v1"), ["observation"])))
+    env = NormalizedBoxEnv(Mani2dEnv())
     # env.reset()
     # print(env.step(env.action_space.sample()))
     # sys.exit()
  #   env = env.wrapped_env.unwrapped
-=======
-    env = NormalizedBoxEnv(gym.make("BipedalWalkerHardcore-v2"))
->>>>>>> 809fb2209b942dccff96e391bafac90a39145219
     print("Policy loaded")
     if args.gpu:
         set_gpu_mode(True)
@@ -35,6 +32,7 @@ def simulate_policy(args):
     # video = cv2.VideoWriter('diayn_bipedal_walker_hardcore.avi', cv2.VideoWriter_fourcc('M','J','P','G'), 30, (1200, 800))
     index = 0
     for skill in range(policy.stochastic_policy.skill_dim):
+        print(skill)
         for _ in range(3):
             path = rollout(
                 env,
