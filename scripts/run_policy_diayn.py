@@ -18,11 +18,15 @@ def simulate_policy(args):
  #   data = joblib.load(args.file)
     data = torch.load(args.file)
     policy = data['evaluation/policy']
+<<<<<<< HEAD
     env = NormalizedBoxEnv(FlattenObservation(FilterObservation(gym.make("FetchPickAndPlace-v1"), ["observation"])))
     # env.reset()
     # print(env.step(env.action_space.sample()))
     # sys.exit()
  #   env = env.wrapped_env.unwrapped
+=======
+    env = NormalizedBoxEnv(gym.make("BipedalWalkerHardcore-v2"))
+>>>>>>> 809fb2209b942dccff96e391bafac90a39145219
     print("Policy loaded")
     if args.gpu:
         set_gpu_mode(True)

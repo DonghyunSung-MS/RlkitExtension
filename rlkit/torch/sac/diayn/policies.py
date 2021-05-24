@@ -38,7 +38,7 @@ class SkillTanhGaussianPolicy(TanhGaussianPolicy):
         # generate (iters, skill_dim) matrix that stacks one-hot skill vectors
         # online reinforcement learning
         skill_vec = np.zeros(self.skill_dim)
-        skill_vec[self.skill] += 1
+        skill_vec[self.skill] = skill_vec[self.skill] + 1
         obs_np = np.concatenate((obs_np, skill_vec), axis=0)
         actions = self.get_actions(obs_np[None], deterministic=deterministic)
         return actions[0, :], {"skill": skill_vec}
