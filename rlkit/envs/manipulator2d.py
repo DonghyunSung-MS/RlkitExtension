@@ -55,8 +55,7 @@ class Mani2dEnv(MujocoEnv):
 if __name__=="__main__":
     env = Mani2dEnv()
     print(env.observation_space.shape)
-    # while True:
-    #     # env.reset()
-    #     env.render()
-
-    #     print(env.step([0.0, 0.01] + [np.random.randn()])[1])
+    # env.reset()
+    while True:
+        env.render()
+        print(env.step([1., 0.0] + [np.random.randn()])[1])
