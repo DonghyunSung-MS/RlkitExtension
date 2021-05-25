@@ -61,7 +61,7 @@ class DiscretePPOTrainer(TorchTrainer):
         Policy Loss
         """
         _, _, all_probs = self.policy(obs)
-        new_log_pi = torch.zeros(all_probs.shape[0], 1)
+        new_log_pi = ptu.zeros(all_probs.shape[0], 1)
         for i in range(all_probs.shape[0]):
             new_log_pi[i] = Categorical(all_probs[i]).log_prob(actions[i]).sum()
 

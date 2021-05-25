@@ -11,8 +11,9 @@ from rlkit.torch.ppo.policies import DiscretePolicy, MakeDeterministic
 from rlkit.torch.ppo.discrete_ppo import DiscretePPOTrainer
 from rlkit.torch.networks import FlattenMlp
 from rlkit.torch.ppo.ppo_torch_batch_rl_algorithm import PPOTorchBatchRLAlgorithm
+from rlkit.envs.manipulator2d import Mani2dEnv
 
-from sanity import SanityEnv
+# from sanity import SanityEnv
 
 import torch
 
@@ -20,8 +21,8 @@ def experiment(variant):
     torch.autograd.set_detect_anomaly(True)
     # expl_env = NormalizedBoxEnv(HalfCheetahEnv())
     # eval_env = NormalizedBoxEnv(HalfCheetahEnv())
-    expl_env = NormalizedBoxEnv(gym.make(str(args.env)))
-    eval_env = NormalizedBoxEnv(gym.make(str(args.env)))
+    expl_env = NormalizedBoxEnv(Mani2dEnv())
+    eval_env = NormalizedBoxEnv(Mani2dEnv())
     obs_dim = expl_env.observation_space.low.size
     worker = torch.load(str(args.worker))['trainer/policy']
     skill_dim = worker.skill_dim
@@ -116,5 +117,5 @@ if __name__ == "__main__":
         ),
     )
     setup_logger('PPODIAYN_' + args.env, variant=variant)
-    #ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
+    ptu.set_gpu_mode(True)  # optionally set the GPU (default=False)
     experiment(variant)

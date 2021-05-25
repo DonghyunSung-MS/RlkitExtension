@@ -45,8 +45,8 @@ class Mani2dEnv(MujocoEnv):
         site_pos[-1, :] = np.array([target_xy + [0.01]])
         self.model.body_pos[:] = site_pos
 
-
-        qpos = self.init_qpos + self.np_random.uniform(size=self.model.nq, low=-0.1, high=0.1)
+        high = np.array([np.pi, np.pi/2.0, np.pi/2.0, np.pi/2.0, 0.2, 0.2])
+        qpos = self.init_qpos + self.np_random.uniform(low=-high, high=high)
         qvel = self.init_qvel #+ self.np_random.randn(self.model.nv) * .1
 
         self.set_state(qpos, qvel)

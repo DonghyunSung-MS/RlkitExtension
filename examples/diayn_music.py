@@ -16,6 +16,7 @@ from rlkit.envs.manipulator2d import Mani2dEnv
 import sys
 from rlkit.util.mi_utils import *
 from rlkit.launchers.launcher_util import set_seed
+from multiprocessing import Process
 
 def experiment(variant, args):
     # expl_env = NormalizedBoxEnv(gym.make(str(args.env)))
